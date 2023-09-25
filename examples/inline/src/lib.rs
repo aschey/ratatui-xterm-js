@@ -1,21 +1,19 @@
-use crossterm_wasm::{
-    event::{EnableMouseCapture, EventStream},
+use crossterm::{
+    event::EnableMouseCapture,
     execute,
-    terminal::{enable_raw_mode, init_terminal, EnterAlternateScreen, TerminalHandle},
+    terminal::{enable_raw_mode, EnterAlternateScreen},
 };
 use futures::stream::StreamExt;
 use rand::{distributions::Uniform, prelude::Distribution};
 use ratatui::{prelude::*, widgets::*};
-use ratatui_wasm::CrosstermWasmBackend;
+use ratatui_wasm::{init_terminal, CrosstermWasmBackend, EventStream, TerminalHandle};
 use std::{
     collections::{BTreeMap, VecDeque},
     error::Error,
-    io, thread,
 };
-use tokio::sync::{broadcast, mpsc};
+use tokio::sync::mpsc;
 use wasm_bindgen::{prelude::wasm_bindgen, JsCast, JsValue};
 use wasm_bindgen_futures::JsFuture;
-use web_sys::KeyboardEvent;
 use xterm_js_rs::Theme;
 
 const NUM_DOWNLOADS: usize = 10;
@@ -24,7 +22,7 @@ type DownloadId = usize;
 type WorkerId = usize;
 
 enum Event {
-    Input(crossterm_wasm::event::KeyEvent),
+    Input(crossterm::event::KeyEvent),
     Tick,
     Resize,
     DownloadUpdate(WorkerId, DownloadId, f64),
@@ -131,7 +129,7 @@ pub async fn main() -> Result<(), JsValue> {
 
 fn input_handling(tx: mpsc::Sender<Event>) {
     wasm_bindgen_futures::spawn_local(async move {
-        let mut events = EventStream;
+        let mut events = EventStream::default();
         loop {
             tokio::select! {
                 _ = sleep(200) => {
@@ -140,10 +138,10 @@ fn input_handling(tx: mpsc::Sender<Event>) {
                 event = events.next() => {
                     if let Some(Ok(event)) = event {
                         match event {
-                            crossterm_wasm::event::Event::Key(key) => {
+                            crossterm::event::Event::Key(key) => {
                                 tx.send(Event::Input(key)).await.ok();
                             }
-                            crossterm_wasm::event::Event::Resize(_, _) => {
+                            crossterm::event::Event::Resize(_, _) => {
                                 tx.send(Event::Resize).await.ok();
                             }
                             _ => {}
@@ -222,7 +220,7 @@ async fn run_app<B: Backend>(
 
         match rx.recv().await.unwrap() {
             Event::Input(event) => {
-                if event.code == crossterm_wasm::event::KeyCode::Char('q') {
+                if event.code == crossterm::event::KeyCode::Char('q') {
                     break;
                 }
             }

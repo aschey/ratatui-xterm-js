@@ -6,16 +6,18 @@ edition = "2021"
 [workspace]
 members = [".", "./examples/*"]
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 ansi-escapes = "0.1.1"
 bitflags = "2.4.0"
 js-sys = "0.3.64"
 nu-ansi-term = "0.49.0"
-ratatui = { version = "0.23.0", default-features = false }
+ratatui = { path = "../ratatui" }
 tokio = { version = "1.32.0", default-features = false, features = ["sync"] }
 wasm-bindgen = "0.2.87"
 web-sys = "0.3.64"
 xterm-js-rs = "0.1.2"
-crossterm-wasm = { path = "../crossterm" }
+crossterm = { path = "../crossterm" }
+futures = "0.3.28"

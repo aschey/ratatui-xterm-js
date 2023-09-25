@@ -1,19 +1,15 @@
-use crossterm_wasm::{
-    event::{DisableMouseCapture, EnableMouseCapture, Event, EventStream, KeyCode, KeyEventKind},
+use crossterm::{
+    event::{DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEventKind},
     execute,
-    terminal::{
-        disable_raw_mode, enable_raw_mode, init_terminal, EnterAlternateScreen,
-        LeaveAlternateScreen, TerminalHandle,
-    },
+    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
 use ratatui::{prelude::*, widgets::*};
-use ratatui_wasm::CrosstermWasmBackend;
+use ratatui_wasm::{init_terminal, CrosstermWasmBackend, EventStream, TerminalHandle};
 
 use futures::stream::StreamExt;
-use std::{error::Error, io};
+use std::io;
 use wasm_bindgen::prelude::*;
-use web_sys::KeyboardEvent;
-use xterm_js_rs::{addons::fit::FitAddon, OnKeyEvent, Theme};
+use xterm_js_rs::Theme;
 #[cfg(feature = "wee_alloc")]
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
@@ -91,7 +87,7 @@ pub async fn main() -> Result<(), JsValue> {
 }
 
 async fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App<'_>) -> io::Result<()> {
-    let mut events = EventStream;
+    let mut events = EventStream::default();
     loop {
         terminal.draw(|f| ui(f, &app))?;
         if let Some(Ok(event)) = events.next().await {
