@@ -10,13 +10,16 @@ members = [".", "./examples/*"]
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-ratatui = { path = "../ratatui" }
+ratatui = "0.23"
 tokio = { version = "1.32.0", default-features = false, features = ["sync"] }
-crossterm = { path = "../crossterm" }
+crossterm = "0.27"
 futures = "0.3.28"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 js-sys = "0.3.64"
 wasm-bindgen = "0.2.87"
 web-sys = "0.3.64"
-xterm-js-rs = "0.1.2"
+xterm-js-rs = { version = "0.1.2", features = ["xterm-addon-fit"] }
+
+[patch.crates-io]
+crossterm = { git = "https://github.com/aschey/crossterm", rev = "a603289170aa998299b1098fedc8c0de08fbecb5" }

@@ -1,4 +1,3 @@
-use crossterm::{event::EnableMouseCapture, execute, terminal::EnterAlternateScreen};
 use futures::stream::StreamExt;
 use rand::{distributions::Uniform, prelude::Distribution};
 use ratatui::{prelude::*, widgets::*};

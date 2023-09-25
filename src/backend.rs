@@ -8,9 +8,8 @@
 use std::io::{self, Write};
 
 use ratatui::{
-    backend::{Backend, ClearType, WindowSize},
+    backend::{Backend, ClearType},
     buffer::Cell,
-    layout::Size,
     prelude::Rect,
 };
 
@@ -99,22 +98,6 @@ impl Backend for CrosstermBackend {
     fn size(&self) -> io::Result<Rect> {
         let (width, height) = crate::js_terminal::size()?;
         Ok(Rect::new(0, 0, width, height))
-    }
-
-    fn window_size(&mut self) -> Result<WindowSize, io::Error> {
-        let crossterm::terminal::WindowSize {
-            columns,
-            rows,
-            width,
-            height,
-        } = window_size()?;
-        Ok(WindowSize {
-            columns_rows: Size {
-                width: columns,
-                height: rows,
-            },
-            pixels: Size { width, height },
-        })
     }
 
     fn flush(&mut self) -> io::Result<()> {

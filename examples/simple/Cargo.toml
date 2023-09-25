@@ -9,9 +9,9 @@ crate-type = ["cdylib", "rlib"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-ratatui = { path = "../../../ratatui", default-features = false }
+ratatui = "0.23"
 ratatui-wasm = { path = "../.." }
-crossterm = { path = "../../../crossterm" }
+crossterm = "0.27"
 futures = "0.3.28"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
@@ -50,3 +50,6 @@ wasm-bindgen-test = "0.3.12"
 [profile.release]
 # Tell `rustc` to optimize for small code size.
 opt-level = "s"
+
+[patch.crates-io]
+crossterm = { git = "https://github.com/aschey/crossterm", rev = "a603289170aa998299b1098fedc8c0de08fbecb5" }
