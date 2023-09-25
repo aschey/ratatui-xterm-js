@@ -12,10 +12,6 @@ use std::{error::Error, io};
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::{prelude::wasm_bindgen, JsCast, JsValue};
 #[cfg(target_arch = "wasm32")]
-use wasm_bindgen_futures::spawn_local as spawn;
-#[cfg(target_arch = "wasm32")]
-use wasm_bindgen_futures::JsFuture;
-#[cfg(target_arch = "wasm32")]
 use xterm_js_rs::Theme;
 
 #[cfg(feature = "wee_alloc")]
@@ -75,7 +71,7 @@ pub async fn main() -> Result<(), JsValue> {
         elem.dyn_into()?,
     );
 
-    let mut handle = TerminalHandle::default();
+    let handle = TerminalHandle::default();
     run(handle, CrosstermBackend::new).await.unwrap();
     Ok(())
 }

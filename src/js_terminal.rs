@@ -1,5 +1,5 @@
 use std::{
-    cell::{Cell, OnceCell},
+    cell::{OnceCell, RefCell},
     io,
     sync::{Mutex, OnceLock},
     task::{Context, Poll},
@@ -87,30 +87,18 @@ pub fn cursor_position() -> io::Result<(u16, u16)> {
 
 #[derive(Default)]
 pub struct TerminalHandle {
-    buffer: Cell<Vec<u8>>,
-}
-
-impl TerminalHandle {
-    #[inline]
-    fn flush_immutable(&self) -> io::Result<()> {
-        // Can't call `self.buffer.flush()` here but since that's just a Vec,
-        // it's probably fine.
-
-        let s = String::from_utf8(self.buffer.replace(Vec::new()))
-            .map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
-        with_terminal(|t| t.write(&s));
-
-        Ok(())
-    }
+    buffer: RefCell<Vec<u8>>,
 }
 
 impl io::Write for TerminalHandle {
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
-        self.buffer.get_mut().write(buf)
+        self.buffer.borrow_mut().write(buf)
     }
 
     fn flush(&mut self) -> io::Result<()> {
-        self.buffer.get_mut().flush()?;
-        self.flush_immutable()
+        let s = String::from_utf8(self.buffer.replace(Vec::new()))
+            .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))?;
+        with_terminal(|t| t.write(&s));
+        Ok(())
     }
 }

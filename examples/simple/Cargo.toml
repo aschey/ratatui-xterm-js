@@ -47,9 +47,5 @@ tokio = { version = "1.32.0", default-features = false, features = [
 [dev-dependencies]
 wasm-bindgen-test = "0.3.12"
 
-[profile.release]
-# Tell `rustc` to optimize for small code size.
-opt-level = "s"
-
 [patch.crates-io]
 crossterm = { git = "https://github.com/aschey/crossterm", rev = "a603289170aa998299b1098fedc8c0de08fbecb5" }

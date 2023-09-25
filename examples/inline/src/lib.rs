@@ -106,7 +106,7 @@ pub async fn main() -> Result<(), JsValue> {
             ),
         elem.dyn_into()?,
     );
-    let mut handle = TerminalHandle::default();
+    let handle = TerminalHandle::default();
 
     run(handle, CrosstermBackend::new).await.unwrap();
     Ok(())

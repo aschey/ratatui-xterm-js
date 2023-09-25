@@ -5,6 +5,8 @@ use crossterm::event::{
     ModifierKeyCode, MouseButton, MouseEvent, MouseEventKind,
 };
 
+// This is a lightly modified version of crossterm's ansi escape sequence parser: https://github.com/crossterm-rs/crossterm/blob/master/src/event/sys/unix/parse.rs
+
 // Event parsing
 //
 // This code (& previous one) are kind of ugly. We have to think about this,
@@ -21,7 +23,7 @@ fn could_not_parse_event_error() -> io::Error {
     io::Error::new(io::ErrorKind::Other, "Could not parse an event.")
 }
 
-pub(crate) fn parse_event(buffer: &[u8], input_available: bool) -> io::Result<Option<Event>> {
+pub(crate) fn parse_event(buffer: &[u8]) -> io::Result<Option<Event>> {
     if buffer.is_empty() {
         return Ok(None);
     }
@@ -29,12 +31,7 @@ pub(crate) fn parse_event(buffer: &[u8], input_available: bool) -> io::Result<Op
     match buffer[0] {
         b'\x1B' => {
             if buffer.len() == 1 {
-                if input_available {
-                    // Possible Esc sequence
-                    Ok(None)
-                } else {
-                    Ok(Some(Event::Key(KeyCode::Esc.into())))
-                }
+                Ok(Some(Event::Key(KeyCode::Esc.into())))
             } else {
                 match buffer[1] {
                     b'O' => {
@@ -58,7 +55,7 @@ pub(crate) fn parse_event(buffer: &[u8], input_available: bool) -> io::Result<Op
                     }
                     b'[' => parse_csi(buffer),
                     b'\x1B' => Ok(Some(Event::Key(KeyCode::Esc.into()))),
-                    _ => parse_event(&buffer[1..], input_available).map(|event_option| {
+                    _ => parse_event(&buffer[1..]).map(|event_option| {
                         event_option.map(|event| {
                             if let Event::Key(key_event) = event {
                                 let mut alt_key_event = key_event;

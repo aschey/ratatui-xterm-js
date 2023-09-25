@@ -13,7 +13,7 @@ use ratatui::{
     prelude::Rect,
 };
 
-use crate::js_terminal::{cursor_position, window_size, TerminalHandle};
+use crate::js_terminal::{cursor_position, TerminalHandle};
 
 /// A backend implementation using the `crossterm` crate.
 ///
@@ -55,7 +55,7 @@ impl Write for CrosstermBackend {
 
     /// Flushes the underlying buffer.
     fn flush(&mut self) -> io::Result<()> {
-        std::io::Write::flush(&mut self.inner)
+        io::Write::flush(&mut self.inner)
     }
 }
 
@@ -101,6 +101,6 @@ impl Backend for CrosstermBackend {
     }
 
     fn flush(&mut self) -> io::Result<()> {
-        std::io::Write::flush(&mut self.inner)
+        io::Write::flush(&mut self.inner)
     }
 }

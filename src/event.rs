@@ -26,7 +26,7 @@ impl Stream for EventStream {
     ) -> std::task::Poll<Option<Self::Item>> {
         loop {
             if let Some(event) = ready!(poll_next_event(cx)) {
-                match parse_event(event.as_bytes(), false) {
+                match parse_event(event.as_bytes()) {
                     Ok(Some(e)) => {
                         return Poll::Ready(Some(Ok(e)));
                     }
