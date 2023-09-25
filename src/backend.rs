@@ -11,7 +11,7 @@ use ratatui::{
     backend::{Backend, ClearType, WindowSize},
     buffer::Cell,
     layout::Size,
-    prelude::{CrosstermBackend, Rect},
+    prelude::Rect,
 };
 
 use crate::js_terminal::{cursor_position, window_size, TerminalHandle};
@@ -35,20 +35,20 @@ use crate::js_terminal::{cursor_position, window_size, TerminalHandle};
 /// # }
 /// ```
 #[derive(Default)]
-pub struct CrosstermWasmBackend {
-    inner: CrosstermBackend<TerminalHandle>,
+pub struct CrosstermBackend {
+    inner: ratatui::backend::CrosstermBackend<TerminalHandle>,
 }
 
-impl CrosstermWasmBackend {
+impl CrosstermBackend {
     /// Creates a new `CrosstermBackend` with the given buffer.
     pub fn new(handle: TerminalHandle) -> Self {
         Self {
-            inner: CrosstermBackend::new(handle),
+            inner: ratatui::backend::CrosstermBackend::new(handle),
         }
     }
 }
 
-impl Write for CrosstermWasmBackend {
+impl Write for CrosstermBackend {
     /// Writes a buffer of bytes to the underlying buffer.
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
         self.inner.write(buf)
@@ -60,7 +60,7 @@ impl Write for CrosstermWasmBackend {
     }
 }
 
-impl Backend for CrosstermWasmBackend {
+impl Backend for CrosstermBackend {
     fn draw<'a, I>(&mut self, content: I) -> io::Result<()>
     where
         I: Iterator<Item = (u16, u16, &'a Cell)>,

@@ -1,20 +1,32 @@
-use crossterm::{
-    event::EnableMouseCapture,
-    execute,
-    terminal::{enable_raw_mode, EnterAlternateScreen},
-};
+use crossterm::{event::EnableMouseCapture, execute, terminal::EnterAlternateScreen};
 use futures::stream::StreamExt;
 use rand::{distributions::Uniform, prelude::Distribution};
 use ratatui::{prelude::*, widgets::*};
-use ratatui_wasm::{init_terminal, CrosstermWasmBackend, EventStream, TerminalHandle};
+use ratatui_wasm::EventStream;
+#[cfg(target_arch = "wasm32")]
+use ratatui_wasm::{init_terminal, CrosstermBackend, TerminalHandle};
+#[cfg(not(target_arch = "wasm32"))]
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use std::{
     collections::{BTreeMap, VecDeque},
     error::Error,
+    io,
 };
+#[cfg(not(target_arch = "wasm32"))]
+use tokio::spawn;
 use tokio::sync::mpsc;
+#[cfg(target_arch = "wasm32")]
 use wasm_bindgen::{prelude::wasm_bindgen, JsCast, JsValue};
+#[cfg(target_arch = "wasm32")]
+use wasm_bindgen_futures::spawn_local as spawn;
+#[cfg(target_arch = "wasm32")]
 use wasm_bindgen_futures::JsFuture;
+#[cfg(target_arch = "wasm32")]
 use xterm_js_rs::Theme;
+
+#[cfg(feature = "wee_alloc")]
+#[global_allocator]
+static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 const NUM_DOWNLOADS: usize = 10;
 
@@ -42,7 +54,7 @@ impl Downloads {
                     worker_id,
                     DownloadInProgress {
                         id: d.id,
-                        started_at: js_sys::Date::now(),
+                        started_at: now(),
                         progress: 0.0,
                     },
                 );
@@ -69,6 +81,7 @@ struct Worker {
     tx: mpsc::Sender<Download>,
 }
 
+#[cfg(target_arch = "wasm32")]
 #[wasm_bindgen(start)]
 pub async fn main() -> Result<(), JsValue> {
     console_error_panic_hook::set_once();
@@ -94,12 +107,21 @@ pub async fn main() -> Result<(), JsValue> {
             ),
         elem.dyn_into()?,
     );
-
-    enable_raw_mode().unwrap();
     let mut handle = TerminalHandle::default();
-    execute!(handle, EnterAlternateScreen, EnableMouseCapture).unwrap();
-    let backend = CrosstermWasmBackend::new(handle);
 
+    run(handle, CrosstermBackend::new).await.unwrap();
+    Ok(())
+}
+
+pub async fn run<W, F, B>(out: W, create_backend: F) -> Result<(), Box<dyn Error>>
+where
+    W: io::Write,
+    B: Backend,
+    F: FnOnce(W) -> B,
+{
+    crossterm::terminal::enable_raw_mode()?;
+
+    let backend = create_backend(out);
     let mut terminal = Terminal::with_options(
         backend,
         TerminalOptions {
@@ -122,13 +144,14 @@ pub async fn main() -> Result<(), JsValue> {
         .await
         .unwrap();
 
+    crossterm::terminal::disable_raw_mode()?;
     terminal.clear().unwrap();
 
     Ok(())
 }
 
 fn input_handling(tx: mpsc::Sender<Event>) {
-    wasm_bindgen_futures::spawn_local(async move {
+    spawn(async move {
         let mut events = EventStream::default();
         loop {
             tokio::select! {
@@ -154,14 +177,34 @@ fn input_handling(tx: mpsc::Sender<Event>) {
     });
 }
 
-fn sleep(ms: i32) -> JsFuture {
-    js_sys::Promise::new(&mut |resolve, _| {
+#[cfg(target_arch = "wasm32")]
+async fn sleep(ms: i32) {
+    let fut: JsFuture = js_sys::Promise::new(&mut |resolve, _| {
         web_sys::window()
             .unwrap()
             .set_timeout_with_callback_and_timeout_and_arguments_0(&resolve, ms)
             .unwrap();
     })
-    .into()
+    .into();
+    fut.await.unwrap();
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+async fn sleep(ms: i32) {
+    tokio::time::sleep(Duration::from_millis(ms as u64)).await
+}
+
+#[cfg(target_arch = "wasm32")]
+fn now() -> f64 {
+    js_sys::Date::now()
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+fn now() -> f64 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_millis() as f64
 }
 
 fn workers(tx: mpsc::Sender<Event>) -> Vec<Worker> {
@@ -169,12 +212,12 @@ fn workers(tx: mpsc::Sender<Event>) -> Vec<Worker> {
         .map(|id| {
             let (worker_tx, mut worker_rx) = mpsc::channel::<Download>(32);
             let tx = tx.clone();
-            wasm_bindgen_futures::spawn_local(async move {
+            spawn(async move {
                 while let Some(download) = worker_rx.recv().await {
                     let mut remaining = download.size;
                     while remaining > 0 {
                         let wait = (remaining as u64).min(10);
-                        sleep((wait * 10) as i32).await.unwrap();
+                        sleep((wait * 10) as i32).await;
 
                         remaining = remaining.saturating_sub(10);
                         let progress = (download.size - remaining) * 100 / download.size;
@@ -242,10 +285,7 @@ async fn run_app<B: Backend>(
                             format!("download {download_id}"),
                             Style::default().add_modifier(Modifier::BOLD),
                         ),
-                        Span::from(format!(
-                            " in {}ms",
-                            js_sys::Date::now() - download.started_at
-                        )),
+                        Span::from(format!(" in {}ms", now() - download.started_at)),
                     ]))
                     .render(buf.area, buf);
                 })?;
@@ -305,10 +345,7 @@ fn ui<B: Backend>(f: &mut Frame<B>, downloads: &Downloads) {
                         .fg(Color::LightGreen)
                         .add_modifier(Modifier::BOLD),
                 ),
-                Span::raw(format!(
-                    " ({}ms)",
-                    js_sys::Date::now() - download.started_at
-                )),
+                Span::raw(format!(" ({}ms)", now() - download.started_at)),
             ]))
         })
         .collect();

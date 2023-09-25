@@ -1,15 +1,23 @@
 use crossterm::{
     event::{DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEventKind},
     execute,
-    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
+    terminal::{EnterAlternateScreen, LeaveAlternateScreen},
 };
+use futures::StreamExt;
 use ratatui::{prelude::*, widgets::*};
-use ratatui_wasm::{init_terminal, CrosstermWasmBackend, EventStream, TerminalHandle};
-
-use futures::stream::StreamExt;
-use std::io;
-use wasm_bindgen::prelude::*;
+use ratatui_wasm::EventStream;
+#[cfg(target_arch = "wasm32")]
+use ratatui_wasm::{init_terminal, CrosstermBackend, TerminalHandle};
+use std::{error::Error, io};
+#[cfg(target_arch = "wasm32")]
+use wasm_bindgen::{prelude::wasm_bindgen, JsCast, JsValue};
+#[cfg(target_arch = "wasm32")]
+use wasm_bindgen_futures::spawn_local as spawn;
+#[cfg(target_arch = "wasm32")]
+use wasm_bindgen_futures::JsFuture;
+#[cfg(target_arch = "wasm32")]
 use xterm_js_rs::Theme;
+
 #[cfg(feature = "wee_alloc")]
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
@@ -40,6 +48,7 @@ impl<'a> App<'a> {
     }
 }
 
+#[cfg(target_arch = "wasm32")]
 #[wasm_bindgen(start)]
 pub async fn main() -> Result<(), JsValue> {
     console_error_panic_hook::set_once();
@@ -66,16 +75,27 @@ pub async fn main() -> Result<(), JsValue> {
         elem.dyn_into()?,
     );
 
-    enable_raw_mode().unwrap();
     let mut handle = TerminalHandle::default();
-    execute!(handle, EnterAlternateScreen, EnableMouseCapture).unwrap();
-    let backend = CrosstermWasmBackend::new(handle);
+    run(handle, CrosstermBackend::new).await.unwrap();
+    Ok(())
+}
+
+pub async fn run<W, F, B>(mut out: W, create_backend: F) -> Result<(), Box<dyn Error>>
+where
+    W: io::Write,
+    B: Backend + io::Write,
+    F: FnOnce(W) -> B,
+{
+    crossterm::terminal::enable_raw_mode().unwrap();
+
+    execute!(out, EnterAlternateScreen, EnableMouseCapture).unwrap();
+    let backend = create_backend(out);
     let mut terminal = Terminal::new(backend).unwrap();
 
     let app = App::new();
 
     run_app(&mut terminal, app).await.unwrap();
-    disable_raw_mode().unwrap();
+    crossterm::terminal::disable_raw_mode().unwrap();
     execute!(
         terminal.backend_mut(),
         LeaveAlternateScreen,
