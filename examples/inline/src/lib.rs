@@ -23,7 +23,7 @@ use wasm_bindgen_futures::JsFuture;
 #[cfg(target_arch = "wasm32")]
 use xterm_js_rs::Theme;
 
-#[cfg(feature = "wee_alloc")]
+#[cfg(all(feature = "wee_alloc", target_arch = "wasm32"))]
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
@@ -307,7 +307,7 @@ async fn run_app<B: Backend>(
     Ok(())
 }
 
-fn ui<B: Backend>(f: &mut Frame<B>, downloads: &Downloads) {
+fn ui(f: &mut Frame, downloads: &Downloads) {
     let size = f.size();
 
     let block = Block::default().title(block::Title::from("Progress").alignment(Alignment::Center));

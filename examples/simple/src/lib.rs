@@ -14,7 +14,7 @@ use wasm_bindgen::{prelude::wasm_bindgen, JsCast, JsValue};
 #[cfg(target_arch = "wasm32")]
 use xterm_js_rs::Theme;
 
-#[cfg(feature = "wee_alloc")]
+#[cfg(all(feature = "wee_alloc", target_arch = "wasm32"))]
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
@@ -123,7 +123,7 @@ async fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App<'_>) -> io
     }
 }
 
-fn ui<B: Backend>(f: &mut Frame<B>, app: &App) {
+fn ui(f: &mut Frame, app: &App) {
     let size = f.size();
     let chunks = Layout::default()
         .direction(Direction::Vertical)
@@ -132,14 +132,10 @@ fn ui<B: Backend>(f: &mut Frame<B>, app: &App) {
 
     let block = Block::default();
     f.render_widget(block, size);
-    let titles = app
-        .titles
-        .iter()
-        .map(|t| {
-            let (first, rest) = t.split_at(1);
-            Line::from(vec![first.yellow(), rest.green()])
-        })
-        .collect();
+    let titles = app.titles.iter().map(|t| {
+        let (first, rest) = t.split_at(1);
+        Line::from(vec![first.yellow(), rest.green()])
+    });
     let tabs = Tabs::new(titles)
         .block(Block::default().borders(Borders::ALL).title("Tabs"))
         .select(app.index)

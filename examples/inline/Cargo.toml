@@ -10,7 +10,7 @@ crate-type = ["cdylib", "rlib"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-ratatui = "0.23"
+ratatui = "0.26.3"
 ratatui-wasm = { path = "../.." }
 rand = "0.8.5"
 crossterm = "0.27"

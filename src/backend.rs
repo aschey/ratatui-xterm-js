@@ -8,12 +8,16 @@
 use std::io::{self, Write};
 
 use ratatui::{
-    backend::{Backend, ClearType},
+    backend::{Backend, ClearType, WindowSize},
     buffer::Cell,
+    layout::Size,
     prelude::Rect,
 };
 
-use crate::js_terminal::{cursor_position, TerminalHandle};
+use crate::{
+    js_terminal::{cursor_position, TerminalHandle},
+    window_size,
+};
 
 /// A backend implementation using the `crossterm` crate.
 ///
@@ -102,5 +106,21 @@ impl Backend for CrosstermBackend {
 
     fn flush(&mut self) -> io::Result<()> {
         io::Write::flush(&mut self.inner)
+    }
+
+    fn window_size(&mut self) -> io::Result<WindowSize> {
+        let crossterm::terminal::WindowSize {
+            columns,
+            rows,
+            width,
+            height,
+        } = window_size()?;
+        Ok(WindowSize {
+            columns_rows: Size {
+                width: columns,
+                height: rows,
+            },
+            pixels: Size { width, height },
+        })
     }
 }

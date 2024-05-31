@@ -12,7 +12,7 @@ use web_sys::HtmlElement;
 use xterm_js_rs::addons::fit::FitAddon;
 
 thread_local! {
-    static TERMINAL: OnceCell<xterm_js_rs::Terminal> = OnceCell::new();
+    static TERMINAL: OnceCell<xterm_js_rs::Terminal> = const { OnceCell::new() };
 }
 
 static DATA_CHANNEL: OnceLock<Mutex<mpsc::Receiver<String>>> = OnceLock::new();
