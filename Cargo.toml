@@ -10,16 +10,21 @@ members = [".", "./examples/*"]
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-ratatui = "0.26"
+ratatui = "0.27"
 tokio = { version = "1.32.0", default-features = false, features = ["sync"] }
 crossterm = "0.27"
 futures = "0.3.28"
+terminput = { git = "https://github.com/aschey/terminput", rev = "fa983c79b62568ddd8d440717d80257dbe34221b", features = [
+    "crossterm",
+] }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 js-sys = "0.3.64"
 wasm-bindgen = "0.2.87"
 web-sys = "0.3.64"
-xterm-js-rs = { version = "0.1.2", features = ["xterm-addon-fit"] }
+xterm-js-rs = { git = "https://github.com/aschey/xterm-js-rs", rev = "6c53e3d947267a85dc88bf88cf4e19ab7ac0e1fe", features = [
+    "xterm-addon-fit",
+] }
 
 [patch.crates-io]
 crossterm = { git = "https://github.com/aschey/crossterm", rev = "a603289170aa998299b1098fedc8c0de08fbecb5" }

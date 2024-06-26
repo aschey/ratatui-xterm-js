@@ -8,6 +8,9 @@ pub use event::EventStream;
 pub use js_terminal::*;
 #[cfg(not(target_arch = "wasm32"))]
 pub use ratatui::backend::CrosstermBackend;
+pub use terminput::*;
+#[cfg(target_arch = "wasm32")]
+pub use xterm_js_rs as xterm;
 
 #[cfg(target_arch = "wasm32")]
 mod backend;
@@ -15,5 +18,3 @@ mod backend;
 mod event;
 #[cfg(target_arch = "wasm32")]
 mod js_terminal;
-#[cfg(target_arch = "wasm32")]
-mod parse;

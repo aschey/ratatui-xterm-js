@@ -5,14 +5,14 @@ use crossterm::{
 };
 use futures::StreamExt;
 use ratatui::{prelude::*, widgets::*};
+#[cfg(target_arch = "wasm32")]
+use ratatui_wasm::xterm::Theme;
 use ratatui_wasm::EventStream;
 #[cfg(target_arch = "wasm32")]
 use ratatui_wasm::{init_terminal, CrosstermBackend, TerminalHandle};
 use std::{error::Error, io};
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::{prelude::wasm_bindgen, JsCast, JsValue};
-#[cfg(target_arch = "wasm32")]
-use xterm_js_rs::Theme;
 
 #[cfg(all(feature = "wee_alloc", target_arch = "wasm32"))]
 #[global_allocator]
@@ -56,7 +56,7 @@ pub async fn main() -> Result<(), JsValue> {
         .unwrap();
 
     init_terminal(
-        xterm_js_rs::TerminalOptions::new()
+        ratatui_wasm::xterm::TerminalOptions::new()
             .with_rows(50)
             .with_cursor_blink(true)
             .with_cursor_width(10)

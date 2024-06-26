@@ -10,7 +10,7 @@ crate-type = ["cdylib", "rlib"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-ratatui = "0.26.3"
+ratatui = "0.27"
 ratatui-wasm = { path = "../.." }
 rand = "0.8.5"
 crossterm = "0.27"
@@ -35,7 +35,6 @@ web-sys = { version = "0.3.64", features = ["console", "Window", "Document"] }
 wasm-bindgen-futures = "0.4.37"
 wasm-bindgen = "0.2.87"
 js-sys = "0.3.64"
-xterm-js-rs = { version = "0.1.2", features = ["xterm-addon-fit"] }
 # The `console_error_panic_hook` crate provides better debugging of panics by
 # logging them with `console.error`. This is great for development, but requires
 # all the `std::fmt` and `std::panicking` infrastructure, so isn't great for

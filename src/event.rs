@@ -3,10 +3,10 @@ use std::{
     task::{ready, Poll},
 };
 
-use crossterm::event::Event;
 use futures::Stream;
+use terminput::parser::parse_event;
 
-use crate::{parse::parse_event, poll_next_event};
+use crate::poll_next_event;
 
 #[derive(Default)]
 pub struct EventStream {}
@@ -18,7 +18,7 @@ impl EventStream {
 }
 
 impl Stream for EventStream {
-    type Item = io::Result<Event>;
+    type Item = io::Result<crossterm::event::Event>;
 
     fn poll_next(
         self: std::pin::Pin<&mut Self>,
@@ -28,7 +28,9 @@ impl Stream for EventStream {
             if let Some(event) = ready!(poll_next_event(cx)) {
                 match parse_event(event.as_bytes()) {
                     Ok(Some(e)) => {
-                        return Poll::Ready(Some(Ok(e)));
+                        if let Ok(e) = e.try_into() {
+                            return Poll::Ready(Some(Ok(e)));
+                        }
                     }
                     Err(e) => {
                         return Poll::Ready(Some(Err(e)));

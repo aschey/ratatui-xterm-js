@@ -1,9 +1,11 @@
 use futures::stream::StreamExt;
 use rand::{distributions::Uniform, prelude::Distribution};
-use ratatui::{prelude::*, widgets::*};
+use ratatui::{prelude::*, widgets::*, Viewport};
+#[cfg(target_arch = "wasm32")]
+use ratatui_wasm::xterm::Theme;
 use ratatui_wasm::EventStream;
 #[cfg(target_arch = "wasm32")]
-use ratatui_wasm::{init_terminal, CrosstermBackend, TerminalHandle};
+use ratatui_wasm::{init_terminal, xterm::TerminalOptions, CrosstermBackend, TerminalHandle};
 #[cfg(not(target_arch = "wasm32"))]
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use std::{
@@ -15,14 +17,11 @@ use std::{
 use tokio::spawn;
 use tokio::sync::mpsc;
 #[cfg(target_arch = "wasm32")]
-use wasm_bindgen::{prelude::wasm_bindgen, JsCast, JsValue};
+use wasm_bindgen::{prelude::wasm_bindgen, JsCast, JsError};
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen_futures::spawn_local as spawn;
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen_futures::JsFuture;
-#[cfg(target_arch = "wasm32")]
-use xterm_js_rs::Theme;
-
 #[cfg(all(feature = "wee_alloc", target_arch = "wasm32"))]
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
@@ -82,7 +81,7 @@ struct Worker {
 
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen(start)]
-pub async fn main() -> Result<(), JsValue> {
+pub async fn main() -> Result<(), JsError> {
     console_error_panic_hook::set_once();
     let elem = web_sys::window()
         .unwrap()
@@ -92,7 +91,7 @@ pub async fn main() -> Result<(), JsValue> {
         .unwrap();
 
     init_terminal(
-        xterm_js_rs::TerminalOptions::new()
+        TerminalOptions::new()
             .with_rows(50)
             .with_cursor_blink(true)
             .with_cursor_width(10)
@@ -104,11 +103,13 @@ pub async fn main() -> Result<(), JsValue> {
                     .with_foreground("#98FB98")
                     .with_background("#000000"),
             ),
-        elem.dyn_into()?,
+        elem.dyn_into().map_err(|e| JsError::new(&e.node_name()))?,
     );
     let handle = TerminalHandle::default();
 
-    run(handle, CrosstermBackend::new).await.unwrap();
+    run(handle, CrosstermBackend::new)
+        .await
+        .map_err(|e| JsError::new(&e.to_string()))?;
     Ok(())
 }
 
@@ -123,7 +124,7 @@ where
     let backend = create_backend(out);
     let mut terminal = Terminal::with_options(
         backend,
-        TerminalOptions {
+        ratatui::TerminalOptions {
             viewport: Viewport::Inline(8),
         },
     )
@@ -321,7 +322,7 @@ fn ui(f: &mut Frame, downloads: &Downloads) {
     // total progress
     let done = NUM_DOWNLOADS - downloads.pending.len() - downloads.in_progress.len();
     let progress = LineGauge::default()
-        .gauge_style(Style::default().fg(Color::Blue))
+        .filled_style(Style::default().fg(Color::Blue))
         .label(format!("{done}/{NUM_DOWNLOADS}"))
         .ratio(done as f64 / NUM_DOWNLOADS as f64);
     f.render_widget(progress, chunks[0]);
