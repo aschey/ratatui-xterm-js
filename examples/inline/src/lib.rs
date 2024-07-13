@@ -1,11 +1,14 @@
+#[cfg(not(target_arch = "wasm32"))]
+use crossterm::event::EventStream;
 use futures::stream::StreamExt;
 use rand::{distributions::Uniform, prelude::Distribution};
 use ratatui::{prelude::*, widgets::*, Viewport};
 #[cfg(target_arch = "wasm32")]
-use ratatui_wasm::xterm::Theme;
-use ratatui_wasm::EventStream;
+use ratatui_xterm_js::xterm::Theme;
 #[cfg(target_arch = "wasm32")]
-use ratatui_wasm::{init_terminal, xterm::TerminalOptions, CrosstermBackend, TerminalHandle};
+use ratatui_xterm_js::EventStream;
+#[cfg(target_arch = "wasm32")]
+use ratatui_xterm_js::{init_terminal, xterm::TerminalOptions, TerminalHandle, XtermJsBackend};
 #[cfg(not(target_arch = "wasm32"))]
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use std::{
@@ -107,7 +110,7 @@ pub async fn main() -> Result<(), JsError> {
     );
     let handle = TerminalHandle::default();
 
-    run(handle, CrosstermBackend::new)
+    run(handle, XtermJsBackend::new)
         .await
         .map_err(|e| JsError::new(&e.to_string()))?;
     Ok(())

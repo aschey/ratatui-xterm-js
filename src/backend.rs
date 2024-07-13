@@ -38,11 +38,11 @@ use crate::{
 /// # }
 /// ```
 #[derive(Default)]
-pub struct CrosstermBackend {
+pub struct XtermJsBackend {
     inner: ratatui::backend::CrosstermBackend<TerminalHandle>,
 }
 
-impl CrosstermBackend {
+impl XtermJsBackend {
     /// Creates a new `CrosstermBackend` with the given buffer.
     pub fn new(handle: TerminalHandle) -> Self {
         Self {
@@ -51,7 +51,7 @@ impl CrosstermBackend {
     }
 }
 
-impl Write for CrosstermBackend {
+impl Write for XtermJsBackend {
     /// Writes a buffer of bytes to the underlying buffer.
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
         self.inner.write(buf)
@@ -63,7 +63,7 @@ impl Write for CrosstermBackend {
     }
 }
 
-impl Backend for CrosstermBackend {
+impl Backend for XtermJsBackend {
     fn draw<'a, I>(&mut self, content: I) -> io::Result<()>
     where
         I: Iterator<Item = (u16, u16, &'a Cell)>,

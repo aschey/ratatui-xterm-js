@@ -1,5 +1,5 @@
 [package]
-name = "ratatui-wasm"
+name = "ratatui-xterm-js"
 version = "0.1.0"
 edition = "2021"
 
@@ -14,7 +14,7 @@ ratatui = "0.27"
 tokio = { version = "1.32.0", default-features = false, features = ["sync"] }
 crossterm = "0.27"
 futures = "0.3.28"
-terminput = { git = "https://github.com/aschey/terminput", rev = "fa983c79b62568ddd8d440717d80257dbe34221b", features = [
+terminput = { git = "https://github.com/aschey/terminput", rev = "85e84fb29e77ee9c26ed09c80ca1eec002a75c55", features = [
     "crossterm",
 ] }
 
@@ -22,7 +22,7 @@ terminput = { git = "https://github.com/aschey/terminput", rev = "fa983c79b62568
 js-sys = "0.3.64"
 wasm-bindgen = "0.2.87"
 web-sys = "0.3.64"
-xterm-js-rs = { git = "https://github.com/aschey/xterm-js-rs", rev = "6c53e3d947267a85dc88bf88cf4e19ab7ac0e1fe", features = [
+xterm-js-rs = { git = "https://github.com/aschey/xterm-js-rs", rev = "d97c6ab43c012068514413261024e782ea866fae", features = [
     "xterm-addon-fit",
 ] }
 

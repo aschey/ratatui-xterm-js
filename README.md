@@ -1,4 +1,4 @@
-# ratatui-wasm
+# ratatui-xterm-js
 
 This is a demo/POC of a ratatui backend based on crossterm that can run on both web and native environments with minimal implementation differences. It requires a [fork of crossterm](https://github.com/aschey/crossterm/tree/wasm) that has certain features disabled or stubbed out when building for wasm. I hope to get these changes merged upstream.
 

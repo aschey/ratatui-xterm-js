@@ -1,3 +1,5 @@
+#[cfg(not(target_arch = "wasm32"))]
+use crossterm::event::EventStream;
 use crossterm::{
     event::{DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEventKind},
     execute,
@@ -6,10 +8,11 @@ use crossterm::{
 use futures::StreamExt;
 use ratatui::{prelude::*, widgets::*};
 #[cfg(target_arch = "wasm32")]
-use ratatui_wasm::xterm::Theme;
-use ratatui_wasm::EventStream;
+use ratatui_xterm_js::xterm::Theme;
 #[cfg(target_arch = "wasm32")]
-use ratatui_wasm::{init_terminal, CrosstermBackend, TerminalHandle};
+use ratatui_xterm_js::EventStream;
+#[cfg(target_arch = "wasm32")]
+use ratatui_xterm_js::{init_terminal, TerminalHandle, XtermJsBackend};
 use std::{error::Error, io};
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::{prelude::wasm_bindgen, JsCast, JsValue};
@@ -56,7 +59,7 @@ pub async fn main() -> Result<(), JsValue> {
         .unwrap();
 
     init_terminal(
-        ratatui_wasm::xterm::TerminalOptions::new()
+        ratatui_xterm_js::xterm::TerminalOptions::new()
             .with_rows(50)
             .with_cursor_blink(true)
             .with_cursor_width(10)
@@ -72,7 +75,7 @@ pub async fn main() -> Result<(), JsValue> {
     );
 
     let handle = TerminalHandle::default();
-    run(handle, CrosstermBackend::new).await.unwrap();
+    run(handle, XtermJsBackend::new).await.unwrap();
     Ok(())
 }
 
