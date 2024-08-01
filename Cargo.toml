@@ -12,7 +12,7 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 ratatui = "0.27"
 tokio = { version = "1.32.0", default-features = false, features = ["sync"] }
-crossterm = "0.27"
+crossterm = "0.28.1"
 futures = "0.3.28"
 terminput = { git = "https://github.com/aschey/terminput", rev = "85e84fb29e77ee9c26ed09c80ca1eec002a75c55", features = [
     "crossterm",
@@ -27,4 +27,4 @@ xterm-js-rs = { git = "https://github.com/aschey/xterm-js-rs", rev = "d97c6ab43c
 ] }
 
 [patch.crates-io]
-crossterm = { git = "https://github.com/aschey/crossterm", rev = "a603289170aa998299b1098fedc8c0de08fbecb5" }
+crossterm = { git = "https://github.com/aschey/crossterm", rev = "524c4c819f025ffd1b203a8404100ec8ede046c0" }
