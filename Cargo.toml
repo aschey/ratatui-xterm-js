@@ -14,7 +14,7 @@ ratatui = "0.27"
 tokio = { version = "1.32.0", default-features = false, features = ["sync"] }
 crossterm = "0.28.1"
 futures = "0.3.28"
-terminput = { git = "https://github.com/aschey/terminput", rev = "85e84fb29e77ee9c26ed09c80ca1eec002a75c55", features = [
+terminput = { git = "https://github.com/aschey/terminput", rev = "0eeca408b9eadf5dca616a8473454488877ecf3e", features = [
     "crossterm",
 ] }
 
