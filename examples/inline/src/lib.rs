@@ -312,7 +312,7 @@ async fn run_app<B: Backend>(
 }
 
 fn ui(f: &mut Frame, downloads: &Downloads) {
-    let size = f.size();
+    let size = f.area();
 
     let block = Block::default().title(block::Title::from("Progress").alignment(Alignment::Center));
     f.render_widget(block, size);

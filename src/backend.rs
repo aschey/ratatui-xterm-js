@@ -10,8 +10,7 @@ use std::io::{self, Write};
 use ratatui::{
     backend::{Backend, ClearType, WindowSize},
     buffer::Cell,
-    layout::Size,
-    prelude::Rect,
+    layout::{Position, Size},
 };
 
 use crate::{
@@ -79,12 +78,13 @@ impl Backend for XtermJsBackend {
         self.inner.show_cursor()
     }
 
-    fn get_cursor(&mut self) -> io::Result<(u16, u16)> {
-        cursor_position()
+    fn get_cursor_position(&mut self) -> io::Result<Position> {
+        let (x, y) = cursor_position()?;
+        Ok(Position::new(x, y))
     }
 
-    fn set_cursor(&mut self, x: u16, y: u16) -> io::Result<()> {
-        self.inner.set_cursor(x, y)
+    fn set_cursor_position<P: Into<Position>>(&mut self, position: P) -> io::Result<()> {
+        self.inner.set_cursor_position(position)
     }
 
     fn clear(&mut self) -> io::Result<()> {
@@ -99,9 +99,9 @@ impl Backend for XtermJsBackend {
         self.inner.append_lines(n)
     }
 
-    fn size(&self) -> io::Result<Rect> {
+    fn size(&self) -> io::Result<Size> {
         let (width, height) = crate::js_terminal::size()?;
-        Ok(Rect::new(0, 0, width, height))
+        Ok(Size::new(width, height))
     }
 
     fn flush(&mut self) -> io::Result<()> {
