@@ -4,7 +4,7 @@ use std::{
 };
 
 use futures::Stream;
-use terminput::parser::parse_event;
+use terminput::parse_event;
 
 use crate::poll_next_event;
 
