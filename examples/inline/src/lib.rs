@@ -1,30 +1,32 @@
+use std::collections::{BTreeMap, VecDeque};
+use std::error::Error;
+use std::io;
+#[cfg(not(target_arch = "wasm32"))]
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
+
 #[cfg(not(target_arch = "wasm32"))]
 use crossterm::event::EventStream;
 use futures::stream::StreamExt;
-use rand::{distributions::Uniform, prelude::Distribution};
-use ratatui::{prelude::*, widgets::*, Viewport};
-#[cfg(target_arch = "wasm32")]
-use ratatui_xterm_js::xterm::Theme;
+use rand::distributions::Uniform;
+use rand::prelude::Distribution;
+use ratatui::Viewport;
+use ratatui::prelude::*;
+use ratatui::widgets::*;
 #[cfg(target_arch = "wasm32")]
 use ratatui_xterm_js::EventStream;
 #[cfg(target_arch = "wasm32")]
-use ratatui_xterm_js::{init_terminal, xterm::TerminalOptions, TerminalHandle, XtermJsBackend};
-#[cfg(not(target_arch = "wasm32"))]
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
-use std::{
-    collections::{BTreeMap, VecDeque},
-    error::Error,
-    io,
-};
+use ratatui_xterm_js::xterm::Theme;
+#[cfg(target_arch = "wasm32")]
+use ratatui_xterm_js::{TerminalHandle, XtermJsBackend, init_terminal, xterm::TerminalOptions};
 #[cfg(not(target_arch = "wasm32"))]
 use tokio::spawn;
 use tokio::sync::mpsc;
 #[cfg(target_arch = "wasm32")]
-use wasm_bindgen::{prelude::wasm_bindgen, JsCast, JsError};
-#[cfg(target_arch = "wasm32")]
-use wasm_bindgen_futures::spawn_local as spawn;
+use wasm_bindgen::{JsCast, JsError, prelude::wasm_bindgen};
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen_futures::JsFuture;
+#[cfg(target_arch = "wasm32")]
+use wasm_bindgen_futures::spawn_local as spawn;
 #[cfg(all(feature = "wee_alloc", target_arch = "wasm32"))]
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
@@ -51,14 +53,11 @@ impl Downloads {
     fn next(&mut self, worker_id: WorkerId) -> Option<Download> {
         match self.pending.pop_front() {
             Some(d) => {
-                self.in_progress.insert(
-                    worker_id,
-                    DownloadInProgress {
-                        id: d.id,
-                        started_at: now(),
-                        progress: 0.0,
-                    },
-                );
+                self.in_progress.insert(worker_id, DownloadInProgress {
+                    id: d.id,
+                    started_at: now(),
+                    progress: 0.0,
+                });
                 Some(d)
             }
             None => None,
@@ -125,12 +124,9 @@ where
     crossterm::terminal::enable_raw_mode()?;
 
     let backend = create_backend(out);
-    let mut terminal = Terminal::with_options(
-        backend,
-        ratatui::TerminalOptions {
-            viewport: Viewport::Inline(8),
-        },
-    )
+    let mut terminal = Terminal::with_options(backend, ratatui::TerminalOptions {
+        viewport: Viewport::Inline(8),
+    })
     .unwrap();
 
     let (tx, rx) = mpsc::channel(32);
@@ -362,14 +358,11 @@ fn ui(f: &mut Frame, downloads: &Downloads) {
         if chunks[1].top().saturating_add(i as u16) > size.bottom() {
             continue;
         }
-        f.render_widget(
-            gauge,
-            Rect {
-                x: chunks[1].left(),
-                y: chunks[1].top().saturating_add(i as u16),
-                width: chunks[1].width,
-                height: 1,
-            },
-        );
+        f.render_widget(gauge, Rect {
+            x: chunks[1].left(),
+            y: chunks[1].top().saturating_add(i as u16),
+            width: chunks[1].width,
+            height: 1,
+        });
     }
 }

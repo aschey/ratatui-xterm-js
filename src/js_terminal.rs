@@ -1,13 +1,13 @@
-use std::{
-    cell::{OnceCell, RefCell},
-    io,
-    sync::{Mutex, OnceLock},
-    task::{Context, Poll},
-};
+use std::cell::{OnceCell, RefCell};
+use std::io;
+use std::sync::{Mutex, OnceLock};
+use std::task::{Context, Poll};
 
 use crossterm::terminal::WindowSize;
-use futures::{channel::mpsc, StreamExt};
-use wasm_bindgen::{prelude::Closure, JsCast};
+use futures::StreamExt;
+use futures::channel::mpsc;
+use wasm_bindgen::JsCast;
+use wasm_bindgen::prelude::Closure;
 use web_sys::HtmlElement;
 use xterm_js_rs::addons::fit::FitAddon;
 

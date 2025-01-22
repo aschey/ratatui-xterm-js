@@ -7,16 +7,12 @@
 
 use std::io::{self, Write};
 
-use ratatui::{
-    backend::{Backend, ClearType, WindowSize},
-    buffer::Cell,
-    layout::{Position, Size},
-};
+use ratatui::backend::{Backend, ClearType, WindowSize};
+use ratatui::buffer::Cell;
+use ratatui::layout::{Position, Size};
 
-use crate::{
-    js_terminal::{cursor_position, TerminalHandle},
-    window_size,
-};
+use crate::js_terminal::{TerminalHandle, cursor_position};
+use crate::window_size;
 
 /// A backend implementation using the `crossterm` crate.
 ///

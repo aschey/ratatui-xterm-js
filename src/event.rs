@@ -1,10 +1,8 @@
-use std::{
-    io,
-    task::{ready, Poll},
-};
+use std::io;
+use std::task::{Poll, ready};
 
 use futures::Stream;
-use terminput::parse_event;
+use terminput::Event;
 
 use crate::poll_next_event;
 
@@ -26,7 +24,7 @@ impl Stream for EventStream {
     ) -> std::task::Poll<Option<Self::Item>> {
         loop {
             if let Some(event) = ready!(poll_next_event(cx)) {
-                match parse_event(event.as_bytes()) {
+                match Event::parse_from(event.as_bytes()) {
                     Ok(Some(e)) => {
                         if let Ok(e) = e.try_into() {
                             return Poll::Ready(Some(Ok(e)));

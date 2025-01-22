@@ -14,9 +14,7 @@ ratatui = "0.29"
 tokio = { version = "1.32.0", default-features = false, features = ["sync"] }
 crossterm = "0.28.1"
 futures = "0.3.28"
-terminput = { git = "https://github.com/aschey/terminput", rev = "eeaf767c382231824ddb2174e05ebd6089192a31", features = [
-  "crossterm",
-] }
+terminput = { version = "0.2.0", features = ["crossterm"] }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 js-sys = "0.3.64"

@@ -1,21 +1,22 @@
+use std::error::Error;
+use std::io;
+
 #[cfg(not(target_arch = "wasm32"))]
 use crossterm::event::EventStream;
-use crossterm::{
-    event::{DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEventKind},
-    execute,
-    terminal::{EnterAlternateScreen, LeaveAlternateScreen},
-};
+use crossterm::event::{DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEventKind};
+use crossterm::execute;
+use crossterm::terminal::{EnterAlternateScreen, LeaveAlternateScreen};
 use futures::StreamExt;
-use ratatui::{prelude::*, widgets::*};
-#[cfg(target_arch = "wasm32")]
-use ratatui_xterm_js::xterm::Theme;
+use ratatui::prelude::*;
+use ratatui::widgets::*;
 #[cfg(target_arch = "wasm32")]
 use ratatui_xterm_js::EventStream;
 #[cfg(target_arch = "wasm32")]
-use ratatui_xterm_js::{init_terminal, TerminalHandle, XtermJsBackend};
-use std::{error::Error, io};
+use ratatui_xterm_js::xterm::Theme;
 #[cfg(target_arch = "wasm32")]
-use wasm_bindgen::{prelude::wasm_bindgen, JsCast, JsValue};
+use ratatui_xterm_js::{TerminalHandle, XtermJsBackend, init_terminal};
+#[cfg(target_arch = "wasm32")]
+use wasm_bindgen::{JsCast, JsValue, prelude::wasm_bindgen};
 
 #[cfg(all(feature = "wee_alloc", target_arch = "wasm32"))]
 #[global_allocator]
