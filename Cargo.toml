@@ -24,5 +24,8 @@ xterm-js-rs = { git = "https://github.com/aschey/xterm-js-rs", rev = "d97c6ab43c
   "xterm-addon-fit",
 ] }
 
+[features]
+scrolling-regions = ["ratatui/scrolling-regions"]
+
 [patch.crates-io]
-crossterm = { git = "https://github.com/aschey/crossterm", rev = "fe6d36126d11655b6eb3f85645d12e008fb8c57b" }
+crossterm = { git = "https://github.com/aschey/crossterm", rev = "3b6db3586eda31a803a67af7bdb1d0937cf26485" }

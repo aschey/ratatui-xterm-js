@@ -104,6 +104,16 @@ impl Backend for XtermJsBackend {
         io::Write::flush(&mut self.inner)
     }
 
+    #[cfg(feature = "scrolling-regions")]
+    fn scroll_region_up(&mut self, region: std::ops::Range<u16>, amount: u16) -> io::Result<()> {
+        self.inner.scroll_region_up(region, amount)
+    }
+
+    #[cfg(feature = "scrolling-regions")]
+    fn scroll_region_down(&mut self, region: std::ops::Range<u16>, amount: u16) -> io::Result<()> {
+        self.inner.scroll_region_down(region, amount)
+    }
+
     fn window_size(&mut self) -> io::Result<WindowSize> {
         let crossterm::terminal::WindowSize {
             columns,
