@@ -3,6 +3,7 @@ use std::task::{Poll, ready};
 
 use futures::Stream;
 use terminput::Event;
+use terminput_crossterm::to_crossterm;
 
 use crate::poll_next_event;
 
@@ -26,7 +27,7 @@ impl Stream for EventStream {
             if let Some(event) = ready!(poll_next_event(cx)) {
                 match Event::parse_from(event.as_bytes()) {
                     Ok(Some(e)) => {
-                        if let Ok(e) = e.try_into() {
+                        if let Ok(e) = to_crossterm(e) {
                             return Poll::Ready(Some(Ok(e)));
                         }
                     }

@@ -53,11 +53,14 @@ impl Downloads {
     fn next(&mut self, worker_id: WorkerId) -> Option<Download> {
         match self.pending.pop_front() {
             Some(d) => {
-                self.in_progress.insert(worker_id, DownloadInProgress {
-                    id: d.id,
-                    started_at: now(),
-                    progress: 0.0,
-                });
+                self.in_progress.insert(
+                    worker_id,
+                    DownloadInProgress {
+                        id: d.id,
+                        started_at: now(),
+                        progress: 0.0,
+                    },
+                );
                 Some(d)
             }
             None => None,
@@ -124,9 +127,12 @@ where
     crossterm::terminal::enable_raw_mode()?;
 
     let backend = create_backend(out);
-    let mut terminal = Terminal::with_options(backend, ratatui::TerminalOptions {
-        viewport: Viewport::Inline(8),
-    })
+    let mut terminal = Terminal::with_options(
+        backend,
+        ratatui::TerminalOptions {
+            viewport: Viewport::Inline(8),
+        },
+    )
     .unwrap();
 
     let (tx, rx) = mpsc::channel(32);
@@ -310,7 +316,9 @@ async fn run_app<B: Backend>(
 fn ui(f: &mut Frame, downloads: &Downloads) {
     let size = f.area();
 
-    let block = Block::default().title(block::Title::from("Progress").alignment(Alignment::Center));
+    let block = Block::default()
+        .title(block::Title::from("Progress"))
+        .title_alignment(Alignment::Center);
     f.render_widget(block, size);
 
     let chunks = Layout::default()
@@ -358,11 +366,14 @@ fn ui(f: &mut Frame, downloads: &Downloads) {
         if chunks[1].top().saturating_add(i as u16) > size.bottom() {
             continue;
         }
-        f.render_widget(gauge, Rect {
-            x: chunks[1].left(),
-            y: chunks[1].top().saturating_add(i as u16),
-            width: chunks[1].width,
-            height: 1,
-        });
+        f.render_widget(
+            gauge,
+            Rect {
+                x: chunks[1].left(),
+                y: chunks[1].top().saturating_add(i as u16),
+                width: chunks[1].width,
+                height: 1,
+            },
+        );
     }
 }
