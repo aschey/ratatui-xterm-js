@@ -11,7 +11,6 @@ cd ./examples/simple
 npm install
 cd www
 npm install
-wasm-pack build --all-features
 # run wasm build
 npm run start
 # or run native build
@@ -23,7 +22,6 @@ cd ./examples/inline
 npm install
 cd www
 npm install
-wasm-pack build --all-features
 # run wasm build
 npm run start
 # or run native build

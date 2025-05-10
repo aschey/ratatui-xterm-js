@@ -1,16 +1,38 @@
+const path = require("node:path");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
-const path = require("path");
+const WasmPackPlugin = require("@wasm-tool/wasm-pack-plugin");
+
+const dist = path.resolve(__dirname, "dist");
 
 module.exports = {
-  entry: "./bootstrap.js",
-  output: {
-    path: path.resolve(__dirname, "dist"),
-    filename: "bootstrap.js",
+  mode: "production",
+  entry: {
+    index: "./index.js",
   },
-  mode: "development",
+  output: {
+    path: dist,
+    filename: "[name].js",
+  },
+  devServer: {
+    static: {
+      directory: dist,
+    },
+  },
+  performance: {
+    hints: "warning",
+    maxAssetSize: 500 * 1024,
+    maxEntrypointSize: 500 * 1024,
+    assetFilter: (assetFilename) => {
+      return !/\.wasm$/.test(assetFilename);
+    },
+  },
   plugins: [
     new CopyWebpackPlugin({
-      patterns: ["index.html"],
+      patterns: ["static/index.html"],
+    }),
+
+    new WasmPackPlugin({
+      crateDirectory: path.resolve(__dirname, ".."),
     }),
   ],
   module: {
@@ -19,9 +41,13 @@ module.exports = {
         test: /\.css$/i,
         use: ["style-loader", "css-loader"],
       },
+      {
+        test: /\.wasm$/,
+        type: "webassembly/async",
+      },
     ],
   },
   experiments: {
-    syncWebAssembly: true,
+    asyncWebAssembly: true,
   },
 };
